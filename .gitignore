@@ -1,0 +1,14 @@
+
+# Virtual Environments
+venvs/
+
+##__pycache__/
+__pycache__
+**/__pycache__/
+
+## Data files
+
+## Output files
+outputs/
+save/
+data/
