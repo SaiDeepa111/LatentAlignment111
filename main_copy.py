@@ -11,7 +11,8 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from PIL import Image
 from tqdm import tqdm
-from pycorenlp import StanfordCoreNLP
+# from pycorenlp import StanfordCoreNLP
+import stanza
 import argparse
 import torch.optim as optim
 from src.models import LSTMFlair, FullyConnected, ResidualFullyConnected
@@ -108,10 +109,13 @@ def prepare_data(_set="train"):
 def sentence_split(text, properties={'annotators': 'ssplit', 'outputFormat': 'json'}):
     """Split sentence using Stanford NLP"""
     ## AddedJSON Loads wrapper since the core nlp server returns a string 
-    annotated = json.loads(nlp.annotate(text, properties))
+    # annotated = json.loads(nlp.annotate(text, properties))
+    annotated = nlp(text)
     sentence_split = list()
-    for sentence in annotated['sentences']:
-        s = [t['word'] for t in sentence['tokens']]
+    # for sentence in annotated['sentences']:
+    for sentence in annotated.sentences:
+        # s = [t['word'] for t in sentence['tokens']]
+        s = [t.text for t in sentence.tokens]
         k = [item.lower() for item in s if item not in [",", ".", '...', '..']]
         sentence_split.append(" ".join(k))
     return sentence_split
@@ -582,7 +586,8 @@ def main(mode, number, _set, load, iteration, cuda_option, save_path, log_file, 
 
 if __name__ == "__main__":
 
-    nlp = StanfordCoreNLP('http://localhost:9000')
+    # nlp = StanfordCoreNLP('http://localhost:9000')
+    nlp = stanza.Pipeline('en', processors='tokenize,pos')
     properties={
     'annotators': 'ssplit',
     'outputFormat': 'json'
