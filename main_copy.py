@@ -63,7 +63,7 @@ def parse_arguments(mode="train", number=200, _set="train", load=False, iteratio
         architecture = args.architecture
     if args.embedding:
         embedding_type = args.embedding
-    if args.loss and args.loss in ["random", "all", "one"]:
+    if args.loss and args.loss in ["random", "all", "one","soft"]:
         loss_mode = args.loss
     if args.rate:
         learning_rate = args.rate
@@ -455,6 +455,13 @@ def execute(_m, _n, _s, _iteration, dataset, base_image_path, log_file, cuda_opt
                             loss += max(0, final_results[key][index0] - results[0] + 0.1)
                         for ind in range(final_results[ri].shape[0]):
                             loss += max(0, results[ri] - results[0] + 0.1)
+                    elif loss_mode == "soft":
+                        keys = [1, 2, 3]
+                        keys = [key for key in keys if key < final_results.shape[0]]
+                        loss = 0
+                        for key in keys:
+                            z = final_results[key][index0] - results[0] + 0.1
+                        loss += np.log(1 + np.exp(-z))
                     else:
                         loss = 1- results[0]
                         keys = [1, 2, 3]
